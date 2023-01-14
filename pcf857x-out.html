@@ -1,0 +1,102 @@
+<!--
+  Copyright 2022 Ocean (iiot2k@gmail.com).
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<script type="text/javascript">
+    RED.nodes.registerType('pcf857x-out', {
+        category: 'iiot modules',
+        color: 'Plum',
+        paletteLabel: 'pcf857x out',
+        defaults: {
+            name:      { value: "" },
+            devtyp:    { value: "0", required: true },
+            devadr:    { value: "0", required: true },
+        },
+        inputs: 1,
+        outputs: 0,
+        inputLabels: ["value array"],
+        icon:"font-awesome/fa-microchip",
+        labelStyle: function() { return this.name ? "node_label_italic" : ""; },
+        label: function () {
+            switch(this.devtyp) {
+                case "0": return this.name || "pcf8574-out #" + this.devadr;
+                case "1": return this.name || "pcf8574a-out #" + this.devadr;
+                case "2": return this.name || "pcf8575-out #" + this.devadr;
+            }
+        },
+    });
+</script>
+
+<script type="text/html" data-template-name="pcf857x-out">
+    <div class="form-row">
+        <label style="width:100%; border-bottom: 2px solid rgb(0, 0, 0);"><b>PCF857x-Out (write)</b></label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-devtyp"><b>Device-Type</b></label>
+        <select type="text" id="node-input-devtyp" style="width: auto;">
+            <option value="0">PCF8574</option>
+            <option value="1">PCF8574A</option>
+            <option value="2">PCF8575</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-devadr"><b>I2C-Address</b></label>
+        <select type="text" id="node-input-devadr" style="width: auto;">
+            <option value="0">20H (38H)</option>
+            <option value="1">21H (39H)</option>
+            <option value="2">22H (3AH)</option>
+            <option value="3">23H (3BH)</option>
+            <option value="4">24H (3CH)</option>
+            <option value="5">25H (3DH)</option>
+            <option value="6">26H (3EH)</option>
+            <option value="7">27H (3FH)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><b>Name</b></label>
+        <input id="node-input-name" type="text" title="Give this node a name">
+    </div>
+    <div id="div-gpiolist" class="form-row">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="pcf857x-out">
+    <p>PCF857x-Out (write)</p>
+    <h3><b>Input:</b></h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">boolean/number array</span></dt>
+        <dd>Input is a boolean/number array with</dd>
+        <dd>size <b>8</b> (pcf8574(a)) or <b>16</b> (pcf8575).</dd>
+        <dd>On smaller arrays bits sets to false.</dd>
+        <dd>Array index is pin number.</dd>
+        <dd>For example P0 = payload[0]</dd>
+        <dt>payload <span class="property-type">Number</span></dt>
+        <dd>The output states are bits in number.</dd>
+        <dd>For example P0 = bit 0 in payload.</dd>
+    </dl>
+    <h3><b>Usage:</b></h3>
+    <p>
+        This node writes to pcf857x outputs.<br>
+        The output turns on 1 or true.<br>
+        <b>!!Warning!!</b>: write always false or 0 to pins<br>
+        used as input.<br> 
+        Else <b>malfunction</b> on inputs are made. <br>
+        Load is only possible with sink operation.<br>
+        Therefore connect loads (led's) to VCC.<br>
+        This node works on Raspberry Pi<br>
+        with 32bit or 64bit OS.<br>
+        Enable i2c with raspi-config.<br>
+	</p>
+</script>

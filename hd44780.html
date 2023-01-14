@@ -1,0 +1,144 @@
+<!--
+  Copyright 2022 Ocean (iiot2k@gmail.com).
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<script type="text/javascript">
+    RED.nodes.registerType('hd44780', {
+        category: 'iiot modules',
+        color: 'Lime',
+        paletteLabel: 'hd44780 lcd',
+        defaults: {
+            name:     { value: "" },
+            lcdtype:  { value: "1", required: true },
+            devtyp:   { value: "0", required: true },
+            devadr:   { value: "7", required: true },
+            nline:    { value: 0, required: true, validate: function (v) { return RED.validators.number(v) && (v >= 0) && (v <= 3); } },
+            ralign:   { value: false },
+            fill:     { value: "0", required: true },
+            bargraph: { value: false },
+        },
+        inputs: 1,
+        outputs: 0,
+        inputLabels: ["string/number/array"],
+        icon: function() { return (this.lcdtype == "0") ? "lcd1602.png" : "lcd2004.png"; },
+        labelStyle: function() { return this.name ? "node_label_italic" : ""; },
+        label: function () { return this.name || "hd44780 #" + this.devadr + "." + this.nline + (this.bargraph ? "B" : ""); },
+    });
+</script>
+
+<script type="text/html" data-template-name="hd44780">
+    <div class="form-row">
+        <label style="width:100%; border-bottom: 2px solid rgb(0, 0, 0);"><b>LCD-Display (hd44780)</b></label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-lcdtype"><b>LCD-Type</b></label>
+        <select type="text" id="node-input-lcdtype" style="width: auto;">
+            <option value="0">1602 (2x16)</option>
+            <option value="1">2004 (4x20)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-devtyp"><b>Device-Type</b></label>
+        <select type="text" id="node-input-devtyp" style="width: auto;">
+            <option value="0">PCF8574</option>
+            <option value="1">PCF8574A</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-devadr"><b>I2C-Address</b></label>
+        <select type="text" id="node-input-devadr" style="width: auto;">
+            <option value="0">20H (38H)</option>
+            <option value="1">21H (39H)</option>
+            <option value="2">22H (3AH)</option>
+            <option value="3">23H (3BH)</option>
+            <option value="4">24H (3CH)</option>
+            <option value="5">25H (3DH)</option>
+            <option value="6">26H (3EH)</option>
+            <option value="7">27H (3FH)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-nline"><b>Line-Number</b></label>
+        <input id="node-input-nline" input type="number" min="0" max="3" required style="width: auto;">
+    </div>
+    <div class="form-row">
+        <label for="node-input-ralign"><b>Rigth-Align</b></label>
+        <input type="checkbox" id="node-input-ralign" title="Align text on rigth" style="display: inline-block; width: auto; vertical-align: top;">
+    </div>
+    <div class="form-row">
+        <label for="node-input-fill"><b>Fill</b></label>
+        <select type="text" id="node-input-fill" style="width: auto;">
+            <option value="0">Blank</option>
+            <option value="1">Zero 0</option>
+            <option value="2">Minus -</option>
+            <option value="3">Underline _</option>
+            <option value="4">Custom Font 0</option>
+            <option value="5">Custom Font 1</option>
+            <option value="6">Custom Font 2</option>
+            <option value="7">Custom Font 3</option>
+            <option value="8">Custom Font 4</option>
+            <option value="9">Custom Font 5</option>
+            <option value="10">Custom Font 6</option>
+            <option value="11">Custom Font 7</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-bargraph"><b>Bargraph</b></label>
+        <input type="checkbox" id="node-input-bargraph" title="Displays Bargraph" style="display: inline-block; width: auto; vertical-align: top;">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><b>Name</b></label>
+        <input id="node-input-name" type="text" title="Give this node a name">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="hd44780">
+    <p>LCD-Display (hd44780)</p>
+    <h3><b>Input:</b></h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">number/string</span></dt>
+        <dd>Contains the text to display on lcd.</dd>
+        <dd>Input is converted to string.</dd>
+        <dd>Whole line is filled with fill character</dd>
+        <dd>and printed with input string.</dd>
+        <dt>font (optional)<span class="property-type">number array</span></dt>
+        <dd>Sends custom font to hd44780 as array.</dd>
+        <dd>Each array element defines line pattern.</dd>
+        <dd>Eight array elements defines the font.</dd>
+        <dd>Max. 8 custom fonts are possible.</dd>
+        <dd>To define a Heart character send:</dd>
+        <dd><b>[0x00,0x00,0x0A,0x15,0x11,0x0E,0x04,0x00]</b></dd>
+        <dd>To display the custom font, send text with</dd>
+        <dd><b>String.fromCharCode(0);</b></dd>
+        <dt>clear (optional)<span class="property-type">any</span></dt>
+        <dd>Clears all lines.</dd>
+        <dt>led (optional)<span class="property-type">boolean</span></dt>
+        <dd>Turns backlight led on/off.</dd>
+    </dl>
+    <h3><b>Usage:</b></h3>
+    <p>
+        pcf8574 is used for control lcd hd44780.<br>
+        <b>Line-Number</b> selects line to display.<br>
+        If <b>Rigth-Align</b> is checked,<br>
+        text is aligned to rigth side.<br>
+        Line is filled with <b>Fill</b> character.<br>
+        If <b>Bargraph</b> is checked, as Bargraph<br>
+        is displayed on lcd line.<br>
+        Input payload number must between 0..100.<br>
+        This node works on Raspberry Pi<br>
+        with 32bit or 64bit OS.<br>
+        Enable i2c with raspi-config.<br>
+	</p>
+</script>
