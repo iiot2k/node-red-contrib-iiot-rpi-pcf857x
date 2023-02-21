@@ -20,7 +20,7 @@ module.exports = function(RED) {
 	const syslib = require("./lib/syslib.js");
 	const sysmodule = syslib.LoadModule("rpi_pcf857x");
 
-    RED.nodes.registerType("hd44780", function(n) {
+    RED.nodes.registerType("hd44780-b", function(n) {
 		var node = this;
 		RED.nodes.createNode(node, n);
 
@@ -28,27 +28,16 @@ module.exports = function(RED) {
 		node.devtyp = parseInt(n.devtyp);
 		node.nline = parseInt(n.nline);
 		node.is4line = (n.lcdtype == "1");
-		node.ralign = n.ralign;
-		node.fill = parseInt(n.fill);
-		node.bargraph = n.bargraph;
 		node.iserror = false;
 		node.status({});
 
-		switch(n.fill) {
-			case "0": node.fill = " "; break;
-			case "1": node.fill = "0"; break;
-			case "2": node.fill = "-"; break;
-			case "3": node.fill = "_"; break;
-			default: node.fill = String.fromCharCode(Number(n.fill)-4); break;
-		}
-
-		node.name = n.name || "LCD #" + node.devadr + ".L" + node.nline + (this.bargraph ? "B" : "");
+		node.name = n.name || "LCD-BIG #" + node.devadr + ".L" + node.nline;
 
 		if (sysmodule === undefined)
 			node.iserror = syslib.outError(node, "driver error", "driver not load, wrong os or not Raspi");
-		else if (!node.is4line && (node.nline > 1))
+		else if (!node.is4line && (node.nline > 0))
 			node.iserror = syslib.outError(node, "inv linenumber", "invalid line number");
-		else if (!sysmodule.lcdinit(node.devadr, node.devtyp, node.is4line))
+		else if (!sysmodule.lcdinitbigfont(node.devadr, node.devtyp, node.is4line))
 			node.iserror = syslib.outError(node, "open error", "i2c port not open or adress used, check i2c settings");
 
 		node.on("input", function (msg) {
@@ -63,51 +52,6 @@ module.exports = function(RED) {
 					sysmodule.lcdled(node.devadr, msg.led);
 				return;
 			}
-			
-			// Bargraph
-			if (node.bargraph) {
-				var nbargraph = Number(msg.payload);
-				if (typeof nbargraph == 'number') {
-					if (nbargraph > 100)
-						nbargraph = 100;
-					else if (nbargraph < 0)
-						nbargraph = 0;
-
-					if (!sysmodule.lcdbargraph(node.devadr, node.nline, msg.payload))
-						syslib.outError(node, "write error", "device not write, check i2c and device");
-					else
-						syslib.outOk(node);
-				}
-				else {
-					syslib.outError(node, "inv number", "invalid bargraph number");
-				}
-				return;
-			}
-
-			// Custom Font
-			if (msg.hasOwnProperty('font')) {
-				if (!Array.isArray(msg.font)) {
-					syslib.outError(node, "inv font", "invalid custom font array");
-					return;
-				}
-				
-				for(var i=0; i < msg.font.length; i++) {
-					if (typeof msg.font[i] !== "number") {
-						syslib.outError(node, "font number", "invalid custom font number");
-						return;
-					}
-	
-					if (msg.font[i] < 0)
-						msg.font[i] = 0;
-					else if (msg.font[i] > 255)
-						msg.font[i] = 255;
-				}
-
-				if (!sysmodule.lcdcustomfont(node.devadr, msg.font))
-					syslib.outError(node, "font error", "custom Font not load");
-				else
-					syslib.outOk(node);
-			}
 
 			// String/Number
 			var out_txt = String(msg.payload);
@@ -117,9 +61,11 @@ module.exports = function(RED) {
 				return;
 			}
 
+			var column = 0;
+
 			// Write to column
 			if (msg.hasOwnProperty('column')) {
-				var column = Number(msg.column);
+				column = Number(msg.column);
 				if (typeof column == 'number') {
 					if (column < 0)
 						column = 0;
@@ -128,19 +74,13 @@ module.exports = function(RED) {
 					else if (!node.is4line && (column > 15))
 						column = 15;
 
-					if (!sysmodule.lcdtextcol(node.devadr, node.nline, column, out_txt))
-						syslib.outError(node, "write error", "device not write, check i2c and device");
-					else
-						syslib.outOk(node);
 				}
 				else {
 					syslib.outError(node, "inv column", "invalid column number");
 				}
-				return;
 			}
 
-			// Write full line
-			if (!sysmodule.lcdtext(node.devadr, node.nline, node.ralign, node.fill, out_txt))
+			if (!sysmodule.lcdbigtext(node.devadr, node.nline, column, out_txt))
 				syslib.outError(node, "write error", "device not write, check i2c and device");
 			else
 				syslib.outOk(node);

@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-iiot-rpi-pcf857x",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "description": "A Node-Red node for pcf8574(A), pcf8575, pcf8574(A) + hd44780-LCD",
 
   "dependencies": {
@@ -19,7 +19,8 @@
     "nodes": {
       "iiot-pcf857x-in": "pcf857x-in.js",
       "iiot-pcf857x-out": "pcf857x-out.js",
-      "iiot-hd44780": "hd44780.js"
+      "iiot-hd44780": "hd44780.js",
+      "iiot-hd44780-b": "hd44780-b.js"
     }
   },
 

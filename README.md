@@ -6,7 +6,7 @@
 ![NPM](https://img.shields.io/npm/l/node-red-contrib-iiot-rpi-pcf857x)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZDRCZBQFWV3A6)
 
-A Node-Red node for pcf8574(A), pcf8575, pcf8574(A) + hd44780-LCD<br>
+A Node-Red nodes for pcf8574(A), pcf8575, pcf8574(A) + hd44780-LCD<br>
 
 ### **Example pcf8574 module**
 ![image info](images/pcf8574.png)
@@ -17,6 +17,9 @@ A Node-Red node for pcf8574(A), pcf8575, pcf8574(A) + hd44780-LCD<br>
 ### **Example pcf8574-lcd module**
 ![image info](images/pcf8574-lcd.png)
 
+### **Example lcd displays (4x20 and 2x16)**
+![image info](images/hd44780.png)
+
 ## Installation
 Install with Node-Red Palette Manager or npm command:
 ```
@@ -26,13 +29,14 @@ npm install node-red-contrib-iiot-rpi-pcf857x
 ## Nodes
 - **pcf857x-in**: Reads from pcf857x.
 - **pcf857x-out**: Writes to pcf857x.
-- **hd44780**: Controls LCD-Display (hd44780) with pcf8574(a).
+- **hd44780**: Displays text on LCD-Display (hd44780) with pcf8574(a).
+- **hd44780-b**: Displays big text on LCD-Display (hd44780) with pcf8574(a).
 
 ## Usage
 - This node works on Raspberry Pi with 32bit or 64bit OS.
-- LCD needs 5V for operate
-- Enable I2C with raspi-config.
 - LCD needs 5V for operate.
+- Use level-shifter to connect on Raspberry Pi.
+- Enable I2C with raspi-config.
 
 ### **Connecting pcf8574(a) module with level-shifter**
 ![image info](images/connecting-lcd.png)
